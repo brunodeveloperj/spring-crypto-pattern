@@ -178,3 +178,21 @@ src/main/java/com/mds/crypto/
 - Cache de encrypted objects para reutilização entre requests
 - Suporte a rotação automática de chaves
 - Métricas Micrometer para latência de key agreement
+
+## Package layout: v1 vs v2
+
+This library ships two complementary APIs — they are **not** versioned
+duplicates of the same contract:
+
+- `crypto.v1.*` — the DLB REST client stack: `CryptoHandler` and
+  `EncryptedObjectHandler` for string encrypt/decrypt plus encrypted-object
+  provisioning. Consumed by `spring-comm-pattern` (Feign parameter
+  encryption) and `spring-token-pattern` (SSO session crypto).
+- `crypto.v2.*` — channel-bound crypto strategies (`BackToBackDlbCrypto`,
+  `FrontToBackCrypto`, `SchedulerToBackDlbCrypto` behind the sealed
+  `AbstractDlbCrypto`) plus the `CryptoException` hierarchy wired to the
+  MDS error contract.
+
+Choose `v1` when integrating the DLB encrypt/decrypt service, `v2` when the
+client channel dictates the crypto strategy. A future consolidation should
+lift the v2 channel model over the v1 transport rather than delete either.
